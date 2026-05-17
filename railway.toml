@@ -1,8 +1,11 @@
 # Railway Deployment Configuration
 
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
 [deploy]
-startCommand = "php artisan migrate --force 2>&1 || true && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
-healthcheckPath = "/up"
+healthcheckPath = "/health.php"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 10
+restartPolicyMaxRetries = 5
