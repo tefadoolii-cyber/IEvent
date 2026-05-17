@@ -31,5 +31,25 @@ class DatabaseSeeder extends Seeder
             ]
         );
         $admin->assignRole('admin');
+
+        // مدير الموارد البشرية
+        $hr = User::firstOrCreate(
+            ['email' => 'hr@ievent.com'],
+            [
+                'name'     => 'مدير الموارد البشرية',
+                'password' => bcrypt('password'),
+            ]
+        );
+        $hr->assignRole('hr_manager');
+
+        // موظف تجريبي
+        $employee = User::firstOrCreate(
+            ['email' => 'employee@ievent.com'],
+            [
+                'name'     => 'موظف تجريبي',
+                'password' => bcrypt('password'),
+            ]
+        );
+        $employee->assignRole('employee');
     }
 }
