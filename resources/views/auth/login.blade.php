@@ -260,6 +260,14 @@
                     تسجيل الدخول
                 </button>
             </form>
+
+            <div style="margin-top:20px;text-align:center;padding:14px;background:#f0f9ff;border-radius:10px;border:1px solid #bae6fd">
+                <i class="bi bi-briefcase" style="color:#0369a1;font-size:16px"></i>
+                <span style="font-size:13px;color:#374151;margin-right:6px">هل تريد الانضمام لفريقنا؟</span>
+                <a href="{{ route('apply') }}" style="color:#0f3460;font-weight:700;font-size:13px;text-decoration:none">
+                    للتقديم على وظيفة اضغط هنا <i class="bi bi-arrow-left-short"></i>
+                </a>
+            </div>
         </div>
     </div>
 </div>

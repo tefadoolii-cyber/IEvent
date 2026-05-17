@@ -19,9 +19,44 @@
 
 <div class="card">
     <div class="card-body" style="padding:25px">
-        <form action="{{ route('employees.update', $employee->id) }}" method="POST">
+        <form action="{{ route('employees.update', $employee->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+
+            {{-- صورة وسيرة ذاتية --}}
+            <div class="section-title">الصورة الشخصية والسيرة الذاتية</div>
+            <div class="row g-3 mb-4">
+                <div class="col-md-5">
+                    <label class="form-label">الصورة الشخصية</label>
+                    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+                        <div id="photo-preview" style="width:80px;height:80px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;border:2px solid #e5e7eb">
+                            @if($employee->photo)
+                                <img src="{{ Storage::disk('public')->url($employee->photo) }}" style="width:80px;height:80px;object-fit:cover;border-radius:50%">
+                            @else
+                                <i class="bi bi-person" style="font-size:36px;color:#9ca3af"></i>
+                            @endif
+                        </div>
+                        <div>
+                            <input type="file" name="photo" id="photo-input" class="form-control" accept="image/jpg,image/jpeg,image/png" style="font-size:13px">
+                            <div style="color:#9ca3af;font-size:11px;margin-top:4px">
+                                {{ $employee->photo ? 'اترك فارغاً للإبقاء على الصورة الحالية' : 'JPG/PNG — الحد الأقصى 2MB' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">السيرة الذاتية (CV)</label>
+                    @if($employee->cv_file)
+                    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 12px;margin-bottom:8px;display:flex;align-items:center;gap:8px;font-size:13px">
+                        <i class="bi bi-file-earmark-text" style="color:#16a34a"></i>
+                        <span style="color:#15803d">يوجد CV محفوظ</span>
+                        <a href="{{ Storage::disk('public')->url($employee->cv_file) }}" target="_blank" style="color:#2563eb;margin-right:auto;font-size:12px">تحميل</a>
+                    </div>
+                    @endif
+                    <input type="file" name="cv_file" class="form-control" accept=".pdf,.doc,.docx">
+                    <div style="color:#9ca3af;font-size:11px;margin-top:4px">PDF / DOC / DOCX — الحد الأقصى 5MB</div>
+                </div>
+            </div>
 
             <div class="section-title">البيانات الأساسية</div>
             <div class="row g-3 mb-4">
@@ -43,11 +78,21 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">القسم</label>
-                    <input type="text" name="department" class="form-control" value="{{ $employee->department }}">
+                    <select name="department" class="form-select">
+                        <option value="">-- اختر --</option>
+                        @foreach($departments as $dept)
+                            <option value="{{ $dept->value_ar }}" @if($employee->department == $dept->value_ar) selected @endif>{{ $dept->value_ar }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">المسمى الوظيفي</label>
-                    <input type="text" name="position" class="form-control" value="{{ $employee->position }}">
+                    <select name="position" class="form-select">
+                        <option value="">-- اختر --</option>
+                        @foreach($jobTitles as $job)
+                            <option value="{{ $job->value_ar }}" @if($employee->position == $job->value_ar) selected @endif>{{ $job->value_ar }}</option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
 
@@ -107,9 +152,24 @@
             </div>
             @endif
 
-            <button type="submit" class="btn btn-save">حفظ التعديل</button>
-            <a href="{{ route('employees.index') }}" class="btn btn-back">إلغاء</a>
+            <div class="d-flex gap-2 flex-wrap">
+                <button type="submit" class="btn btn-save"><i class="bi bi-check-lg"></i> حفظ التعديل</button>
+                <a href="{{ route('employees.index') }}" class="btn btn-back">إلغاء</a>
+            </div>
         </form>
+
+<script>
+document.getElementById('photo-input').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        document.getElementById('photo-preview').innerHTML =
+            `<img src="${e.target.result}" style="width:80px;height:80px;object-fit:cover;border-radius:50%">`;
+    };
+    reader.readAsDataURL(file);
+});
+</script>
     </div>
 </div>
 

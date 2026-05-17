@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /b)",
+      "Bash(php artisan *)",
+      "Bash(php -l app/Http/Controllers/JobApplicationController.php)",
+      "Bash(php -l app/Http/Controllers/EmployeeController.php)",
+      "Bash(php -l app/Http/Controllers/EmployeePortalController.php)",
+      "Bash(php -l app/Models/JobApplication.php)"
+    ]
+  }
+}

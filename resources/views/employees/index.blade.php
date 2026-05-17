@@ -55,6 +55,9 @@
                         @endif
                     </td>
                     <td>
+                        <a href="{{ route('employees.show', $employee->id) }}" class="btn btn-edit">
+                            <i class="bi bi-eye"></i> عرض
+                        </a>
                         <a href="{{ route('employees.edit', $employee->id) }}" class="btn btn-edit">
                             <i class="bi bi-pencil"></i> تعديل
                         </a>

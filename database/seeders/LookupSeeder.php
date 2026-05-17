@@ -12,6 +12,18 @@ class LookupSeeder extends Seeder
     {
         $groups = [
             [
+                'key' => 'departments',
+                'name_ar' => 'الأقسام',
+                'is_system' => false,
+                'items' => ['الموارد البشرية', 'تقنية المعلومات', 'المالية والمحاسبة', 'المبيعات والتسويق', 'العمليات', 'خدمة العملاء'],
+            ],
+            [
+                'key' => 'job_titles',
+                'name_ar' => 'المسميات الوظيفية',
+                'is_system' => false,
+                'items' => ['مدير', 'مشرف', 'موظف', 'محاسب', 'مطور برمجيات', 'مصمم', 'محلل بيانات', 'مندوب مبيعات'],
+            ],
+            [
                 'key' => 'location_types',
                 'name_ar' => 'أنواع المواقع',
                 'is_system' => true,

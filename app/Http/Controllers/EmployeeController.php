@@ -3,38 +3,50 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\Attendance;
 use App\Models\CustomField;
+use App\Models\LookupGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
-    // عرض كل الموظفين
     public function index()
     {
         $employees = Employee::all();
         return view('employees.index', compact('employees'));
     }
 
-    // صفحة إضافة موظف
     public function create()
     {
         $customFields = CustomField::forTable('employees');
-        return view('employees.create', compact('customFields'));
+        $departments = LookupGroup::where('key', 'departments')->first()?->lookups ?? collect();
+        $jobTitles = LookupGroup::where('key', 'job_titles')->first()?->lookups ?? collect();
+
+        return view('employees.create', compact('customFields', 'departments', 'jobTitles'));
     }
 
-    // حفظ الموظف الجديد
     public function store(Request $request)
     {
         $request->validate([
             'name'            => 'required',
             'employee_number' => 'required|unique:employees',
+            'photo'           => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'cv_file'         => 'nullable|file|mimes:pdf,doc,docx|max:5120',
         ]);
 
-        // حفظ الموظف
-        $employee = Employee::create($request->except('custom_fields'));
+        $data = $request->except(['custom_fields', 'photo', 'cv_file']);
 
-        // حفظ قيم الحقول المخصصة
+        if ($request->hasFile('photo')) {
+            $data['photo'] = $request->file('photo')->store('employees/photos', 'public');
+        }
+        if ($request->hasFile('cv_file')) {
+            $data['cv_file'] = $request->file('cv_file')->store('employees/cvs', 'public');
+        }
+
+        $employee = Employee::create($data);
+
         if ($request->custom_fields) {
             foreach ($request->custom_fields as $fieldId => $value) {
                 DB::table('custom_field_values')->insert([
@@ -51,32 +63,67 @@ class EmployeeController extends Controller
         return redirect()->route('employees.index')->with('success', 'تم إضافة الموظف بنجاح');
     }
 
-    // تعديل موظف
+    public function show(Employee $employee)
+    {
+        $employee->load('contracts');
+
+        $monthAttendance = Attendance::where('employee_id', $employee->id)
+            ->whereMonth('date', now()->month)
+            ->whereYear('date', now()->year)
+            ->get();
+
+        $stats = [
+            'present' => $monthAttendance->where('status', 'present')->count(),
+            'absent'  => $monthAttendance->where('status', 'absent')->count(),
+            'late'    => $monthAttendance->where('status', 'late')->count(),
+            'total'   => $monthAttendance->count(),
+        ];
+
+        $recentAttendance = Attendance::where('employee_id', $employee->id)
+            ->orderByDesc('date')
+            ->limit(10)
+            ->get();
+
+        return view('employees.show', compact('employee', 'stats', 'recentAttendance'));
+    }
+
     public function edit(Employee $employee)
     {
         $customFields = CustomField::forTable('employees');
+        $departments = LookupGroup::where('key', 'departments')->first()?->lookups ?? collect();
+        $jobTitles = LookupGroup::where('key', 'job_titles')->first()?->lookups ?? collect();
 
-        // جلب القيم المحفوظة
         $customValues = DB::table('custom_field_values')
             ->where('record_table', 'employees')
             ->where('record_id', $employee->id)
             ->pluck('value', 'custom_field_id')
             ->toArray();
 
-        return view('employees.edit', compact('employee', 'customFields', 'customValues'));
+        return view('employees.edit', compact('employee', 'customFields', 'customValues', 'departments', 'jobTitles'));
     }
 
-    // حفظ التعديل
     public function update(Request $request, Employee $employee)
     {
         $request->validate([
             'name'            => 'required',
             'employee_number' => 'required|unique:employees,employee_number,' . $employee->id,
+            'photo'           => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'cv_file'         => 'nullable|file|mimes:pdf,doc,docx|max:5120',
         ]);
 
-        $employee->update($request->except('custom_fields'));
+        $data = $request->except(['custom_fields', 'photo', 'cv_file']);
 
-        // تحديث قيم الحقول المخصصة
+        if ($request->hasFile('photo')) {
+            if ($employee->photo) Storage::disk('public')->delete($employee->photo);
+            $data['photo'] = $request->file('photo')->store('employees/photos', 'public');
+        }
+        if ($request->hasFile('cv_file')) {
+            if ($employee->cv_file) Storage::disk('public')->delete($employee->cv_file);
+            $data['cv_file'] = $request->file('cv_file')->store('employees/cvs', 'public');
+        }
+
+        $employee->update($data);
+
         if ($request->custom_fields) {
             foreach ($request->custom_fields as $fieldId => $value) {
                 DB::table('custom_field_values')->updateOrInsert(
@@ -96,10 +143,11 @@ class EmployeeController extends Controller
         return redirect()->route('employees.index')->with('success', 'تم تعديل الموظف بنجاح');
     }
 
-    // حذف موظف
     public function destroy(Employee $employee)
     {
-        // حذف قيم الحقول المخصصة أولاً
+        if ($employee->photo)   Storage::disk('public')->delete($employee->photo);
+        if ($employee->cv_file) Storage::disk('public')->delete($employee->cv_file);
+
         DB::table('custom_field_values')
             ->where('record_table', 'employees')
             ->where('record_id', $employee->id)
@@ -107,5 +155,20 @@ class EmployeeController extends Controller
 
         $employee->delete();
         return redirect()->route('employees.index')->with('success', 'تم حذف الموظف');
+    }
+
+    public function data(Employee $employee)
+    {
+        return response()->json([
+            'id'              => $employee->id,
+            'name'            => $employee->name,
+            'employee_number' => $employee->employee_number,
+            'department'      => $employee->department,
+            'position'        => $employee->position,
+            'phone'           => $employee->phone,
+            'email'           => $employee->email,
+            'start_date'      => $employee->start_date?->format('Y-m-d'),
+            'end_date'        => $employee->end_date?->format('Y-m-d'),
+        ]);
     }
 }

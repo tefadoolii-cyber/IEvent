@@ -13,6 +13,7 @@ class ModulesSeeder extends Seeder
             // الموارد البشرية
             ['key' => 'employees',   'name' => 'إدارة الموظفين',         'icon' => 'bi-person',          'route' => 'employees.index',  'parent' => 'hr',      'order' => 1],
             ['key' => 'attendance',  'name' => 'إدارة الحضور والانصراف', 'icon' => 'bi-calendar-check',  'route' => 'attendance.index', 'parent' => 'hr',      'order' => 2],
+            ['key' => 'contracts',   'name' => 'إدارة العقود',            'icon' => 'bi-file-earmark-text','route' => 'contracts.index',  'parent' => 'hr',      'order' => 3],
 
             // البيانات
             ['key' => 'companies',   'name' => 'إدارة الشركات',          'icon' => 'bi-building',        'route' => null,               'parent' => 'data',    'order' => 1],

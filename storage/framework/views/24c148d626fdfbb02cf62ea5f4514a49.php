@@ -56,6 +56,9 @@
                         <?php endif; ?>
                     </td>
                     <td>
+                        <a href="<?php echo e(route('employees.show', $employee->id)); ?>" class="btn btn-edit">
+                            <i class="bi bi-eye"></i> عرض
+                        </a>
                         <a href="<?php echo e(route('employees.edit', $employee->id)); ?>" class="btn btn-edit">
                             <i class="bi bi-pencil"></i> تعديل
                         </a>

@@ -15,11 +15,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            SettingsSeeder::class,
+            RolesAndPermissionsSeeder::class,
+            LookupSeeder::class,
+            ModulesSeeder::class,
         ]);
+
+        // إنشاء مستخدم الأدمن الافتراضي
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@admin.com'],
+            [
+                'name'     => 'مدير النظام',
+                'password' => bcrypt('password'),
+            ]
+        );
+        $admin->assignRole('admin');
     }
 }
