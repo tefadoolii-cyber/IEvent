@@ -41,7 +41,10 @@ Route::get('/up', function () {
 });
 
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
 });
 
 // التقديم للوظائف (عام - بدون تسجيل دخول)
