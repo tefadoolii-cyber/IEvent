@@ -14,6 +14,10 @@ return new class extends Migration
         // Drop the broken assignments table first if it exists
         Schema::dropIfExists('assignments');
 
+        if (Schema::hasTable('assignments')) {
+            return;
+        }
+
         Schema::create('assignments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employee_id')->constrained()->onDelete('cascade');
