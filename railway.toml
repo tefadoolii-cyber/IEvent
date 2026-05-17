@@ -1,9 +1,8 @@
 # Railway Deployment Configuration
-# This file tells Railway how to handle the project
 
 [deploy]
-startCommand = "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
-healthcheckPath = "/"
+startCommand = "php artisan migrate --force 2>&1 || true && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
+healthcheckPath = "/up"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
