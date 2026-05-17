@@ -36,8 +36,15 @@ use App\Http\Controllers\NotificationController;
 use App\Models\Contract;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/up', function () {
+    return response('OK', 200);
+});
+
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
 });
 
 // التقديم للوظائف (عام - بدون تسجيل دخول)

@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
+        if (Schema::hasTable('lookups')) {
+            return;
+        }
+
         Schema::create('lookups', function (Blueprint $table) {
             $table->id();
             $table->foreignId('group_id')->constrained('lookup_groups')->cascadeOnDelete();

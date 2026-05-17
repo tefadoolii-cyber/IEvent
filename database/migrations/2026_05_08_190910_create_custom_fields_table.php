@@ -9,6 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         // جدول تعريف الحقول
+        if (Schema::hasTable('custom_fields')) {
+            return;
+        }
+
         Schema::create('custom_fields', function (Blueprint $table) {
             $table->id();
             $table->string('table_name');           // الجدول (employees, contracts...)
@@ -23,6 +27,10 @@ return new class extends Migration
         });
 
         // جدول قيم الحقول
+        if (Schema::hasTable('custom_field_values')) {
+            return;
+        }
+
         Schema::create('custom_field_values', function (Blueprint $table) {
             $table->id();
             $table->foreignId('custom_field_id')->constrained()->onDelete('cascade');

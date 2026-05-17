@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
+        if (Schema::hasTable('lookup_groups')) {
+            return;
+        }
+
         Schema::create('lookup_groups', function (Blueprint $table) {
             $table->id();
             $table->string('key')->unique();           // location_types
