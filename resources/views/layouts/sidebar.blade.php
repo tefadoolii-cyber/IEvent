@@ -36,6 +36,9 @@
             <a href="{{ route('assets.index') }}" class="{{ request()->is('assets*') ? 'active' : '' }}">
                 <i class="bi bi-laptop"></i> إدارة العهد
             </a>
+            <a href="{{ route('job-openings.index') }}" class="{{ request()->is('job-openings*') ? 'active' : '' }}">
+                <i class="bi bi-briefcase"></i> الوظائف المفتوحة
+            </a>
             <a href="{{ route('job-applications.index') }}" class="{{ request()->is('job-applications*') ? 'active' : '' }}">
                 <i class="bi bi-people"></i> المتقدمون للوظائف
             </a>

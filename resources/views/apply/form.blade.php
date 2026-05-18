@@ -1,203 +1,169 @@
-@extends('layouts.public')
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>التقديم على وظيفة: {{ $jobOpening->title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { font-family: 'Tajawal', sans-serif; }
+        body { background: #f4f6f9; }
+        .header { background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%); color: white; padding: 30px 20px; }
+        .header h2 { font-weight: 800; margin: 0; }
+        .card { border: none; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+        .form-label { font-weight: 600; font-size: 14px; color: #374151; }
+        .form-label .req { color: #dc2626; }
+        .form-control, .form-select { border-radius: 8px; border: 1.5px solid #e5e7eb; padding: 10px 14px; font-size: 14px; }
+        .form-control:focus, .form-select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+        .btn-submit { background: #2563eb; color: white; border: none; border-radius: 10px; padding: 12px 36px; font-size: 16px; font-weight: 700; }
+        .btn-submit:hover { background: #1d4ed8; color: white; }
+        .section-badge { background: #eff6ff; color: #1d4ed8; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; margin-bottom: 20px; display: inline-block; }
+        .file-hint { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+    </style>
+</head>
+<body>
 
-@section('title', 'التقديم على وظيفة')
-@section('header-subtitle', 'تقديم طلب توظيف')
-
-@section('content')
-
-@if($errors->any())
-<div class="alert alert-danger mb-4">
-    <strong><i class="bi bi-exclamation-triangle-fill"></i> يرجى تصحيح الأخطاء التالية:</strong>
-    <ul class="mb-0 mt-2 pe-3">
-        @foreach($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
-@endif
-
-<div class="row justify-content-center">
-    <div class="col-lg-10">
-
-        <div class="pub-card" style="text-align:center;padding:28px;margin-bottom:20px">
-            <div style="width:70px;height:70px;background:linear-gradient(135deg,#1a1a2e,#0f3460);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px">
-                <i class="bi bi-person-lines-fill" style="color:white;font-size:30px"></i>
-            </div>
-            <h2 style="font-size:20px;font-weight:800;color:#1a1a2e;margin-bottom:6px">تقديم طلب توظيف</h2>
-            <p style="color:#6b7280;font-size:13px;margin:0">يرجى ملء جميع البيانات المطلوبة بدقة. الحقول المميزة بـ <span class="required-star">*</span> إلزامية.</p>
-        </div>
-
-        <form action="{{ route('apply.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-
-            {{-- البيانات الشخصية --}}
-            <div class="pub-card">
-                <div class="section-title"><i class="bi bi-person-badge"></i> البيانات الشخصية</div>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">الاسم الكامل <span class="required-star">*</span></label>
-                        <input type="text" name="full_name" class="form-control @error('full_name') is-invalid @enderror"
-                               value="{{ old('full_name') }}" placeholder="الاسم الرباعي" required>
-                        @error('full_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">رقم الهوية / الإقامة <span class="required-star">*</span></label>
-                        <input type="text" name="id_number" class="form-control @error('id_number') is-invalid @enderror"
-                               value="{{ old('id_number') }}" placeholder="1XXXXXXXXX" required>
-                        @error('id_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">رقم الجوال <span class="required-star">*</span></label>
-                        <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror"
-                               value="{{ old('phone') }}" placeholder="05XXXXXXXX" required>
-                        @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">البريد الإلكتروني</label>
-                        <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
-                               value="{{ old('email') }}" placeholder="example@email.com">
-                        @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">تاريخ الميلاد</label>
-                        <input type="date" name="date_of_birth" class="form-control @error('date_of_birth') is-invalid @enderror"
-                               value="{{ old('date_of_birth') }}">
-                        @error('date_of_birth')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">الجنسية</label>
-                        <select name="nationality" class="form-select @error('nationality') is-invalid @enderror">
-                            <option value="">-- اختر --</option>
-                            @foreach($nationalities as $nat)
-                                <option value="{{ is_string($nat) ? $nat : $nat->value_ar }}"
-                                    {{ old('nationality') == (is_string($nat) ? $nat : $nat->value_ar) ? 'selected' : '' }}>
-                                    {{ is_string($nat) ? $nat : $nat->value_ar }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('nationality')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">العنوان</label>
-                        <input type="text" name="address" class="form-control @error('address') is-invalid @enderror"
-                               value="{{ old('address') }}" placeholder="المدينة، الحي">
-                        @error('address')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                </div>
-            </div>
-
-            {{-- البيانات التعليمية والمهنية --}}
-            <div class="pub-card">
-                <div class="section-title"><i class="bi bi-mortarboard"></i> المؤهل والخبرة</div>
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label">المؤهل العلمي</label>
-                        <select name="education_level" class="form-select @error('education_level') is-invalid @enderror">
-                            <option value="">-- اختر --</option>
-                            @foreach($educationLevels as $edu)
-                                <option value="{{ is_string($edu) ? $edu : $edu->value_ar }}"
-                                    {{ old('education_level') == (is_string($edu) ? $edu : $edu->value_ar) ? 'selected' : '' }}>
-                                    {{ is_string($edu) ? $edu : $edu->value_ar }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('education_level')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">سنوات الخبرة</label>
-                        <select name="experience_years" class="form-select @error('experience_years') is-invalid @enderror">
-                            <option value="">-- اختر --</option>
-                            <option value="0" {{ old('experience_years') == '0' ? 'selected' : '' }}>بدون خبرة</option>
-                            <option value="1" {{ old('experience_years') == '1' ? 'selected' : '' }}>أقل من سنة</option>
-                            <option value="2" {{ old('experience_years') == '2' ? 'selected' : '' }}>1 - 2 سنة</option>
-                            <option value="3" {{ old('experience_years') == '3' ? 'selected' : '' }}>3 - 5 سنوات</option>
-                            <option value="4" {{ old('experience_years') == '4' ? 'selected' : '' }}>6 - 10 سنوات</option>
-                            <option value="5" {{ old('experience_years') == '5' ? 'selected' : '' }}>أكثر من 10 سنوات</option>
-                        </select>
-                        @error('experience_years')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">الراتب المتوقع (ر.س)</label>
-                        <input type="number" name="expected_salary" class="form-control @error('expected_salary') is-invalid @enderror"
-                               value="{{ old('expected_salary') }}" placeholder="مثال: 8000" min="0">
-                        @error('expected_salary')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="col-md-12">
-                        <label class="form-label">الوظيفة المطلوبة <span class="required-star">*</span></label>
-                        <input type="text" name="desired_position" class="form-control @error('desired_position') is-invalid @enderror"
-                               value="{{ old('desired_position') }}" placeholder="مثال: محاسب، مهندس مدني، مدير مشروع..." required>
-                        @error('desired_position')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="col-md-12">
-                        <label class="form-label">خطاب التقديم / ملاحظات إضافية</label>
-                        <textarea name="cover_letter" class="form-control @error('cover_letter') is-invalid @enderror"
-                                  rows="4" placeholder="اكتب نبذة مختصرة عن نفسك وأسباب تقديمك...">{{ old('cover_letter') }}</textarea>
-                        @error('cover_letter')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                </div>
-            </div>
-
-            {{-- الصورة والسيرة الذاتية --}}
-            <div class="pub-card">
-                <div class="section-title"><i class="bi bi-paperclip"></i> الصورة الشخصية والسيرة الذاتية</div>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">الصورة الشخصية</label>
-                        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:8px">
-                            <div id="photo-preview" style="width:80px;height:80px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;border:3px solid #e5e7eb">
-                                <i class="bi bi-person" style="font-size:36px;color:#9ca3af"></i>
-                            </div>
-                            <div style="flex:1">
-                                <input type="file" name="photo" id="photo-input" class="form-control @error('photo') is-invalid @enderror"
-                                       accept="image/jpg,image/jpeg,image/png" style="font-size:13px">
-                                <div style="color:#9ca3af;font-size:11px;margin-top:4px">JPG / PNG — الحد الأقصى 2MB</div>
-                                @error('photo')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">السيرة الذاتية (CV) <span class="required-star">*</span></label>
-                        <input type="file" name="cv_file" class="form-control @error('cv_file') is-invalid @enderror"
-                               accept=".pdf,.doc,.docx" style="font-size:13px">
-                        <div style="color:#9ca3af;font-size:11px;margin-top:4px">PDF / DOC / DOCX — الحد الأقصى 5MB</div>
-                        @error('cv_file')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                </div>
-            </div>
-
-            {{-- الإرسال --}}
-            <div class="pub-card">
-                <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#92400e;display:flex;align-items:flex-start;gap:10px">
-                    <i class="bi bi-info-circle-fill" style="font-size:16px;flex-shrink:0;margin-top:1px"></i>
-                    <div>
-                        بتقديم هذا الطلب، أقر بأن جميع المعلومات المذكورة صحيحة ودقيقة، وأن أي معلومة مغلوطة قد تؤدي إلى رفض الطلب أو إنهاء التوظيف.
-                    </div>
-                </div>
-                <button type="submit" class="btn-submit">
-                    <i class="bi bi-send-fill"></i> إرسال طلب التوظيف
-                </button>
-                <div style="text-align:center;margin-top:16px;font-size:13px;color:#6b7280">
-                    هل لديك حساب؟ <a href="{{ route('login') }}" style="color:#0f3460;font-weight:600">تسجيل الدخول</a>
-                </div>
-            </div>
-
-        </form>
+<div class="header">
+    <div class="container">
+        <a href="{{ route('apply') }}" style="color:rgba(255,255,255,.7);font-size:13px;text-decoration:none">
+            <i class="bi bi-arrow-right me-1"></i>الوظائف المتاحة
+        </a>
+        <h2 class="mt-2">{{ $jobOpening->title }}</h2>
+        @if($jobOpening->department)
+        <span style="background:rgba(255,255,255,.2);padding:3px 12px;border-radius:20px;font-size:13px">
+            <i class="bi bi-building me-1"></i>{{ $jobOpening->department }}
+        </span>
+        @endif
+        @if($jobOpening->deadline)
+        <span style="background:rgba(255,255,255,.15);padding:3px 12px;border-radius:20px;font-size:13px;margin-right:8px">
+            <i class="bi bi-clock me-1"></i>آخر موعد: {{ $jobOpening->deadline->format('Y-m-d') }}
+        </span>
+        @endif
     </div>
 </div>
 
-@endsection
+<div class="container py-4">
 
-@section('scripts')
-<script>
-document.getElementById('photo-input').addEventListener('change', function() {
-    const file = this.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-        document.getElementById('photo-preview').innerHTML =
-            `<img src="${e.target.result}" style="width:80px;height:80px;object-fit:cover;border-radius:50%">`;
-    };
-    reader.readAsDataURL(file);
-});
-</script>
-@endsection
+    @if($errors->any())
+    <div class="alert alert-danger mb-4">
+        @foreach($errors->all() as $e)<p class="mb-1"><i class="bi bi-exclamation-circle me-1"></i>{{ $e }}</p>@endforeach
+    </div>
+    @endif
+
+    @if($jobOpening->description)
+    <div class="card mb-4">
+        <div class="card-body p-4">
+            <div class="section-badge"><i class="bi bi-info-circle me-1"></i>عن الوظيفة</div>
+            <p style="font-size:14px;color:#374151;line-height:1.9;margin:0">{{ $jobOpening->description }}</p>
+        </div>
+    </div>
+    @endif
+
+    <div class="card">
+        <div class="card-body p-4">
+            <div class="section-badge"><i class="bi bi-pencil-square me-1"></i>نموذج التقديم</div>
+
+            <form action="{{ route('apply.store', $jobOpening->id) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="row g-3">
+
+                @foreach($jobOpening->fields ?? [] as $field)
+                @php
+                    $key  = $field['key'];
+                    $req  = $field['required'] ?? false;
+                    $def  = $availableFields[$key] ?? [];
+                    $type = $def['type'] ?? 'text';
+                    $lbl  = $def['label'] ?? $key;
+                @endphp
+
+                @if($type === 'textarea')
+                <div class="col-12">
+                    <label class="form-label">{{ $lbl }} @if($req)<span class="req">*</span>@endif</label>
+                    <textarea name="{{ $key }}" class="form-control" rows="3" {{ $req ? 'required' : '' }}>{{ old($key) }}</textarea>
+                </div>
+
+                @elseif($type === 'select' && $key === 'nationality')
+                <div class="col-md-6">
+                    <label class="form-label">{{ $lbl }} @if($req)<span class="req">*</span>@endif</label>
+                    <select name="{{ $key }}" class="form-select" {{ $req ? 'required' : '' }}>
+                        <option value="">-- اختر --</option>
+                        @foreach($nationalities as $n)
+                        <option value="{{ $n->value }}" {{ old($key) == $n->value ? 'selected' : '' }}>{{ $n->label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                @elseif($type === 'select' && $key === 'education_level')
+                <div class="col-md-6">
+                    <label class="form-label">{{ $lbl }} @if($req)<span class="req">*</span>@endif</label>
+                    <select name="{{ $key }}" class="form-select" {{ $req ? 'required' : '' }}>
+                        <option value="">-- اختر --</option>
+                        @foreach($educationLevels as $e)
+                        <option value="{{ $e->value }}" {{ old($key) == $e->value ? 'selected' : '' }}>{{ $e->label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                @elseif($type === 'image')
+                <div class="col-md-6">
+                    <label class="form-label">{{ $lbl }} @if($req)<span class="req">*</span>@endif</label>
+                    <input type="file" name="{{ $key }}" class="form-control" accept="image/jpeg,image/png,image/webp" {{ $req ? 'required' : '' }}>
+                    <div class="file-hint">JPG, PNG — بحد أقصى 3 MB</div>
+                </div>
+
+                @elseif($type === 'file')
+                <div class="col-md-6">
+                    <label class="form-label">{{ $lbl }} @if($req)<span class="req">*</span>@endif</label>
+                    <input type="file" name="{{ $key }}" class="form-control" accept=".pdf,.doc,.docx" {{ $req ? 'required' : '' }}>
+                    <div class="file-hint">PDF, DOC — بحد أقصى 5 MB</div>
+                </div>
+
+                @elseif($type === 'number')
+                <div class="col-md-6">
+                    <label class="form-label">{{ $lbl }} @if($req)<span class="req">*</span>@endif</label>
+                    <input type="number" name="{{ $key }}" class="form-control" min="0" value="{{ old($key) }}" {{ $req ? 'required' : '' }}>
+                </div>
+
+                @elseif($type === 'date')
+                <div class="col-md-6">
+                    <label class="form-label">{{ $lbl }} @if($req)<span class="req">*</span>@endif</label>
+                    <input type="date" name="{{ $key }}" class="form-control" value="{{ old($key) }}" {{ $req ? 'required' : '' }}>
+                </div>
+
+                @elseif($type === 'email')
+                <div class="col-md-6">
+                    <label class="form-label">{{ $lbl }} @if($req)<span class="req">*</span>@endif</label>
+                    <input type="email" name="{{ $key }}" class="form-control" value="{{ old($key) }}" {{ $req ? 'required' : '' }}>
+                </div>
+
+                @elseif($type === 'tel')
+                <div class="col-md-6">
+                    <label class="form-label">{{ $lbl }} @if($req)<span class="req">*</span>@endif</label>
+                    <input type="tel" name="{{ $key }}" class="form-control" value="{{ old($key) }}" {{ $req ? 'required' : '' }}>
+                </div>
+
+                @else
+                <div class="col-md-6">
+                    <label class="form-label">{{ $lbl }} @if($req)<span class="req">*</span>@endif</label>
+                    <input type="text" name="{{ $key }}" class="form-control" value="{{ old($key) }}" {{ $req ? 'required' : '' }}>
+                </div>
+                @endif
+
+                @endforeach
+
+                </div>
+
+                <div class="mt-4 d-flex gap-2 align-items-center">
+                    <button type="submit" class="btn-submit"><i class="bi bi-send me-2"></i>إرسال الطلب</button>
+                    <a href="{{ route('apply') }}" style="color:#6b7280;font-size:14px;text-decoration:none">إلغاء</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

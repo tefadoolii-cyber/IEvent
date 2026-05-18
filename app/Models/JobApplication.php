@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class JobApplication extends Model
 {
     protected $fillable = [
+        'job_opening_id',
         'full_name', 'id_number', 'phone', 'email', 'date_of_birth',
         'nationality', 'address', 'education_level', 'experience_years',
-        'desired_position', 'expected_salary', 'photo', 'cv_file',
-        'cover_letter', 'status', 'reviewed_by', 'reviewed_at', 'notes',
+        'desired_position', 'expected_salary', 'photo', 'id_photo',
+        'cv_file', 'iban_photo', 'cover_letter',
+        'status', 'reviewed_by', 'reviewed_at', 'notes',
     ];
 
     protected $casts = [
@@ -21,6 +23,11 @@ class JobApplication extends Model
     public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function jobOpening()
+    {
+        return $this->belongsTo(JobOpening::class);
     }
 
     public function getStatusLabelAttribute(): string

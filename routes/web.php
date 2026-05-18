@@ -33,6 +33,7 @@ use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\JobOpeningController;
 use App\Models\Contract;
 use Illuminate\Support\Facades\Route;
 
@@ -49,8 +50,9 @@ Route::get('/', function () {
 
 // التقديم للوظائف (عام - بدون تسجيل دخول)
 Route::get('/apply', [JobApplicationController::class, 'apply'])->name('apply');
-Route::post('/apply', [JobApplicationController::class, 'store'])->name('apply.store');
 Route::get('/apply/thanks', [JobApplicationController::class, 'thanks'])->name('apply.thanks');
+Route::get('/apply/{jobOpening}', [JobApplicationController::class, 'applyForm'])->name('apply.form');
+Route::post('/apply/{jobOpening}', [JobApplicationController::class, 'store'])->name('apply.store');
 
 Route::get('/dashboard', function () {
     $totalEmployees  = \App\Models\Employee::count();
@@ -209,6 +211,9 @@ Route::middleware('auth')->group(function () {
     Route::post('notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::delete('notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+
+    // الوظائف المفتوحة (إدارة)
+    Route::resource('job-openings', JobOpeningController::class)->except(['show']);
 
     // طلبات التوظيف
     Route::get('job-applications', [JobApplicationController::class, 'index'])->name('job-applications.index');

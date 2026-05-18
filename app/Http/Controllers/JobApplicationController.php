@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use App\Models\JobApplication;
+use App\Models\JobOpening;
 use App\Models\LookupGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,50 +16,76 @@ class JobApplicationController extends Controller
 
     public function apply()
     {
-        $nationalities    = LookupGroup::where('key', 'nationalities')->first()?->lookups ?? collect();
-        $educationLevels  = LookupGroup::where('key', 'education_levels')->first()?->lookups ?? collect();
-        return view('apply.form', compact('nationalities', 'educationLevels'));
+        $openings = JobOpening::where('is_active', true)
+            ->where(fn($q) => $q->whereNull('deadline')->orWhere('deadline', '>=', today()))
+            ->withCount('applications')
+            ->latest()->get();
+        return view('apply.listings', compact('openings'));
     }
 
-    public function store(Request $request)
+    public function applyForm(JobOpening $jobOpening)
     {
-        $request->validate([
-            'full_name'        => 'required|string|max:255',
-            'id_number'        => 'required|string|max:20',
-            'phone'            => 'required|string|max:20',
-            'email'            => 'nullable|email|max:255',
-            'date_of_birth'    => 'nullable|date',
-            'nationality'      => 'nullable|string|max:100',
-            'address'          => 'nullable|string|max:500',
-            'education_level'  => 'nullable|string|max:100',
-            'experience_years' => 'nullable|integer|min:0|max:50',
-            'desired_position' => 'required|string|max:255',
-            'expected_salary'  => 'nullable|numeric|min:0',
-            'cover_letter'     => 'nullable|string',
-            'photo'            => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'cv_file'          => 'nullable|file|mimes:pdf,doc,docx|max:5120',
-        ], [
-            'full_name.required' => 'الاسم الكامل مطلوب',
-            'id_number.required' => 'رقم الهوية مطلوب',
-            'phone.required'     => 'رقم الجوال مطلوب',
-            'email.email'        => 'البريد الإلكتروني غير صحيح',
-            'photo.image'        => 'يجب أن تكون الصورة بصيغة JPG أو PNG',
-            'photo.max'          => 'حجم الصورة يجب أن لا يتجاوز 2 ميجابايت',
-            'cv_file.max'          => 'حجم السيرة الذاتية يجب أن لا يتجاوز 5 ميجابايت',
-            'desired_position.required' => 'الوظيفة المطلوبة مطلوبة',
-        ]);
-
-        $data = $request->except(['photo', 'cv_file']);
-
-        if ($request->hasFile('photo')) {
-            $data['photo'] = $request->file('photo')->store('applications/photos', 'public');
+        if (!$jobOpening->is_active) {
+            return redirect()->route('apply')->with('error', 'هذه الوظيفة لم تعد متاحة');
         }
-        if ($request->hasFile('cv_file')) {
-            $data['cv_file'] = $request->file('cv_file')->store('applications/cvs', 'public');
+        $nationalities   = LookupGroup::where('key', 'nationalities')->first()?->lookups ?? collect();
+        $educationLevels = LookupGroup::where('key', 'education_levels')->first()?->lookups ?? collect();
+        $availableFields = JobOpening::$availableFields;
+        return view('apply.form', compact('jobOpening', 'nationalities', 'educationLevels', 'availableFields'));
+    }
+
+    public function store(Request $request, JobOpening $jobOpening)
+    {
+        $rules = [];
+        $messages = [];
+
+        foreach ($jobOpening->fields ?? [] as $field) {
+            $key = $field['key'];
+            $req = $field['required'] ?? false;
+            $def = JobOpening::$availableFields[$key] ?? [];
+            $type = $def['type'] ?? 'text';
+
+            $rule = $req ? 'required' : 'nullable';
+
+            if ($type === 'image') {
+                $rules[$key] = $rule . '|image|mimes:jpg,jpeg,png,webp|max:3072';
+            } elseif ($type === 'file') {
+                $rules[$key] = $rule . '|file|mimes:pdf,doc,docx|max:5120';
+            } elseif ($type === 'email') {
+                $rules[$key] = $rule . '|email|max:255';
+            } elseif ($type === 'number') {
+                $rules[$key] = $rule . '|numeric|min:0';
+            } elseif ($type === 'date') {
+                $rules[$key] = $rule . '|date';
+            } else {
+                $rules[$key] = $rule . '|string|max:500';
+            }
+
+            if ($req) {
+                $messages[$key . '.required'] = ($def['label'] ?? $key) . ' مطلوب';
+            }
+        }
+
+        $request->validate($rules, $messages);
+
+        $fileFields = ['photo', 'id_photo', 'cv_file', 'iban_photo'];
+        $data = ['job_opening_id' => $jobOpening->id, 'desired_position' => $jobOpening->title];
+
+        foreach ($jobOpening->fields ?? [] as $field) {
+            $key = $field['key'];
+            if (in_array($key, $fileFields)) {
+                if ($request->hasFile($key)) {
+                    $folder = in_array($key, ['photo', 'id_photo', 'iban_photo'])
+                        ? 'applications/photos'
+                        : 'applications/cvs';
+                    $data[$key] = $request->file($key)->store($folder, 'public');
+                }
+            } else {
+                $data[$key] = $request->input($key);
+            }
         }
 
         JobApplication::create($data);
-
         return redirect()->route('apply.thanks');
     }
 
