@@ -241,7 +241,10 @@
                     <label class="form-label">كلمة المرور</label>
                     <div class="input-group">
                         <i class="bi bi-lock"></i>
-                        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                        <input type="password" name="password" id="passwordInput" class="form-control" placeholder="••••••••" required style="padding-right:42px">
+                        <i class="bi bi-eye" id="togglePassword"
+                           style="position:absolute;top:50%;transform:translateY(-50%);right:16px;left:auto;color:#9ca3af;cursor:pointer;z-index:10;font-size:15px"
+                           onclick="togglePass()"></i>
                     </div>
                 </div>
 
@@ -272,5 +275,18 @@
     </div>
 </div>
 
+<script>
+function togglePass() {
+    const input = document.getElementById('passwordInput');
+    const icon  = document.getElementById('togglePassword');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+</script>
 </body>
 </html>
