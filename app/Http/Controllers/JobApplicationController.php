@@ -158,17 +158,21 @@ class JobApplicationController extends Controller
     {
         $request->validate([
             'employee_number' => 'required|unique:employees,employee_number',
+            'email'           => 'required|email|unique:users,email',
             'department'      => 'nullable|string|max:255',
             'position'        => 'nullable|string|max:255',
             'start_date'      => 'nullable|date',
             'status'          => 'required|in:active,inactive',
+        ], [
+            'email.required'  => 'البريد الإلكتروني مطلوب لإنشاء حساب المستخدم',
+            'email.unique'    => 'هذا البريد الإلكتروني مستخدم بالفعل في النظام',
         ]);
 
         $employeeData = [
-            'name'            => $jobApplication->full_name,
+            'name'            => $request->name ?? $jobApplication->full_name,
             'employee_number' => $request->employee_number,
-            'phone'           => $jobApplication->phone,
-            'email'           => $jobApplication->email,
+            'phone'           => $request->phone ?? $jobApplication->phone,
+            'email'           => $request->email,
             'department'      => $request->department,
             'position'        => $request->position ?? $jobApplication->desired_position,
             'start_date'      => $request->start_date,
@@ -176,7 +180,6 @@ class JobApplicationController extends Controller
             'contract_status' => 'active',
         ];
 
-        // Copy files to employees folders
         if ($jobApplication->photo) {
             $dest = 'employees/photos/' . basename($jobApplication->photo);
             Storage::disk('public')->copy($jobApplication->photo, $dest);
@@ -188,7 +191,17 @@ class JobApplicationController extends Controller
             $employeeData['cv_file'] = $dest;
         }
 
-        Employee::create($employeeData);
+        $employee = Employee::create($employeeData);
+
+        // إنشاء حساب المستخدم تلقائياً — الباسورد المؤقت = رقم الهوية
+        $tempPassword = $jobApplication->id_number ?? 'password123';
+        $user = \App\Models\User::create([
+            'name'        => $employee->name,
+            'email'       => $request->email,
+            'password'    => bcrypt($tempPassword),
+            'employee_id' => $employee->id,
+        ]);
+        $user->assignRole('employee');
 
         $jobApplication->update([
             'status'      => 'accepted',
@@ -197,7 +210,12 @@ class JobApplicationController extends Controller
         ]);
 
         return redirect()->route('job-applications.index')
-            ->with('success', 'تم تحويل المتقدم إلى موظف بنجاح');
+            ->with('success', 'تم تحويل المتقدم إلى موظف بنجاح')
+            ->with('account_created', [
+                'name'     => $employee->name,
+                'email'    => $request->email,
+                'password' => $tempPassword,
+            ]);
     }
 
     public function destroy(JobApplication $jobApplication)

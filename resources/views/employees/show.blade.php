@@ -64,6 +64,48 @@
             </div>
         </div>
 
+        {{-- حساب المستخدم --}}
+        <div class="card mb-3">
+            <div class="card-header">
+                <span style="font-weight:600"><i class="bi bi-person-lock"></i> حساب النظام</span>
+            </div>
+            <div class="card-body" style="padding:16px 20px">
+                @if(session('password_reset'))
+                <div class="alert alert-success" style="font-size:13px;padding:10px 14px">
+                    <i class="bi bi-check-circle me-1"></i> تم إعادة تعيين كلمة المرور<br>
+                    <strong>البريد:</strong> {{ session('password_reset')['email'] }}<br>
+                    <strong>الباسورد الجديد:</strong>
+                    <code style="background:#d1fae5;padding:2px 6px;border-radius:4px;font-size:13px">{{ session('password_reset')['password'] }}</code>
+                </div>
+                @endif
+
+                @if($employee->user)
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                    <i class="bi bi-person-check" style="color:#16a34a;font-size:20px"></i>
+                    <div>
+                        <div style="font-size:13px;font-weight:600">{{ $employee->user->email }}</div>
+                        <div style="font-size:11px;color:#9ca3af">
+                            {{ $employee->user->roles->pluck('name')->join('، ') }}
+                        </div>
+                    </div>
+                    <span style="margin-right:auto;background:#dcfce7;color:#16a34a;padding:2px 10px;border-radius:20px;font-size:11px">نشط</span>
+                </div>
+                <form action="{{ route('employees.reset-password', $employee->id) }}" method="POST"
+                      onsubmit="return confirm('إعادة تعيين كلمة المرور لـ {{ $employee->user->email }}؟')">
+                    @csrf
+                    <button type="submit" class="btn btn-edit" style="font-size:12px;padding:5px 14px;width:100%">
+                        <i class="bi bi-key me-1"></i>إعادة تعيين كلمة المرور
+                    </button>
+                </form>
+                @else
+                <div style="text-align:center;padding:10px;color:#9ca3af;font-size:13px">
+                    <i class="bi bi-person-x" style="font-size:24px;display:block;margin-bottom:6px"></i>
+                    لا يوجد حساب مرتبط
+                </div>
+                @endif
+            </div>
+        </div>
+
         {{-- إحصائيات الحضور --}}
         <div class="card">
             <div class="card-header">

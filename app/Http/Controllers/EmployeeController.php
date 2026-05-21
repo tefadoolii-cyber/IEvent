@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\Attendance;
 use App\Models\CustomField;
 use App\Models\LookupGroup;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -65,7 +66,7 @@ class EmployeeController extends Controller
 
     public function show(Employee $employee)
     {
-        $employee->load('contracts');
+        $employee->load(['contracts', 'user']);
 
         $monthAttendance = Attendance::where('employee_id', $employee->id)
             ->whereMonth('date', now()->month)
@@ -85,6 +86,23 @@ class EmployeeController extends Controller
             ->get();
 
         return view('employees.show', compact('employee', 'stats', 'recentAttendance'));
+    }
+
+    public function resetPassword(Employee $employee)
+    {
+        $user = $employee->user;
+
+        if (!$user) {
+            return back()->with('error', 'لا يوجد حساب مستخدم مرتبط بهذا الموظف');
+        }
+
+        $newPassword = 'P@ss' . rand(10000, 99999);
+        $user->update(['password' => bcrypt($newPassword)]);
+
+        return back()->with('password_reset', [
+            'email'    => $user->email,
+            'password' => $newPassword,
+        ]);
     }
 
     public function edit(Employee $employee)

@@ -6,6 +6,25 @@
     <h4><i class="bi bi-people"></i> طلبات التوظيف</h4>
 </div>
 
+@if(session('account_created'))
+<div class="alert alert-success alert-dismissible fade show" style="border-right:4px solid #16a34a">
+    <i class="bi bi-person-check-fill me-1"></i>
+    <strong>تم إنشاء حساب الموظف بنجاح</strong> — احتفظ بهذه البيانات:
+    <div style="background:#f0fdf4;border-radius:8px;padding:10px 14px;margin-top:8px;font-size:13px">
+        <div><i class="bi bi-envelope me-1"></i><strong>البريد:</strong> {{ session('account_created')['email'] }}</div>
+        <div class="mt-1"><i class="bi bi-key me-1"></i><strong>الباسورد المؤقت:</strong>
+            <code style="background:#dcfce7;padding:2px 8px;border-radius:4px">{{ session('account_created')['password'] }}</code>
+        </div>
+        <div class="mt-1" style="color:#6b7280;font-size:11px"><i class="bi bi-info-circle me-1"></i>يجب على الموظف تغيير كلمة المرور عند أول دخول</div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+@endif
+
+@if(session('success'))
+<div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+@endif
+
 {{-- الإحصائيات --}}
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">

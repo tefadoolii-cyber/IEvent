@@ -97,6 +97,7 @@ Route::middleware('auth')->group(function () {
     // الموظفين والحضور
     Route::resource('employees', EmployeeController::class);
     Route::get('employees/{employee}/data', [EmployeeController::class, 'data'])->name('employees.data');
+    Route::post('employees/{employee}/reset-password', [EmployeeController::class, 'resetPassword'])->name('employees.reset-password');
     Route::resource('attendance', AttendanceController::class);
 
     // المستخدمين

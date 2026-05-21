@@ -55,8 +55,9 @@
                     <input type="text" name="phone" class="form-control" value="{{ old('phone', $application->phone) }}">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">البريد الإلكتروني</label>
-                    <input type="email" name="email" class="form-control" value="{{ old('email', $application->email) }}">
+                    <label class="form-label">البريد الإلكتروني <span style="color:#dc2626">*</span></label>
+                    <input type="email" name="email" class="form-control" value="{{ old('email', $application->email) }}" required>
+                    <div style="font-size:11px;color:#2563eb;margin-top:4px"><i class="bi bi-info-circle me-1"></i>سيُستخدم لإنشاء حساب الموظف في النظام</div>
                 </div>
             </div>
 
