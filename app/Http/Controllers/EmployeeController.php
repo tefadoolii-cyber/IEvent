@@ -96,7 +96,8 @@ class EmployeeController extends Controller
             return back()->with('error', 'لا يوجد حساب مستخدم مرتبط بهذا الموظف');
         }
 
-        $newPassword = 'P@ss' . rand(10000, 99999);
+        // إعادة التعيين إلى الجوال بدون صفر (أو عشوائي إن لم يوجد جوال)
+        $newPassword = ltrim($employee->phone ?? '', '0') ?: ('P@ss' . rand(10000, 99999));
         $user->update(['password' => bcrypt($newPassword)]);
 
         return back()->with('password_reset', [

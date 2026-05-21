@@ -230,11 +230,14 @@
                 @csrf
 
                 <div class="mb-3">
-                    <label class="form-label">البريد الإلكتروني</label>
+                    <label class="form-label">رقم الهوية أو البريد الإلكتروني</label>
                     <div class="input-group">
-                        <i class="bi bi-envelope"></i>
-                        <input type="email" name="email" class="form-control" placeholder="example@email.com" value="{{ old('email') }}" required autofocus>
+                        <i class="bi bi-person-badge"></i>
+                        <input type="text" name="username" class="form-control" placeholder="رقم الهوية أو البريد" value="{{ old('username') }}" required autofocus autocomplete="username">
                     </div>
+                    @error('username')
+                        <div style="color:#dc2626;font-size:12px;margin-top:4px">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-3">

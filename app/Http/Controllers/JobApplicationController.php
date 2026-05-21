@@ -193,8 +193,9 @@ class JobApplicationController extends Controller
 
         $employee = Employee::create($employeeData);
 
-        // إنشاء حساب المستخدم تلقائياً — الباسورد المؤقت = رقم الهوية
-        $tempPassword = $jobApplication->id_number ?? 'password123';
+        // الباسورد المؤقت = رقم الجوال بدون الصفر الأول
+        $rawPhone     = $request->phone ?? $jobApplication->phone ?? '';
+        $tempPassword = ltrim($rawPhone, '0') ?: ($jobApplication->id_number ?? 'password123');
         $user = \App\Models\User::create([
             'name'        => $employee->name,
             'email'       => $request->email,
